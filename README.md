@@ -8,7 +8,7 @@
 - 统一入库流水线：内容抽取 → 摘要/关键词/标签生成 → Embedding → Qdrant 建索引。
 - 检索能力：关键词/标签过滤、MySQL 全文/LIKE 搜索、Qdrant 语义检索（含相似度分数）。
 - 支持文本、URL 抓取（保留原始 HTML）、文件上传（PDF/DOCX 提取文本并保存原文件）。
-- 简易 Web 界面（Jinja2 渲染）：列表、详情、编辑、删除。
+- 简易 Web 界面（Jinja2 渲染）：入库、列表、详情、编辑、删除。
 
 ## 目录结构
 ```
@@ -41,22 +41,22 @@ knowledge_base/
    ```bash
    docker compose up -d --build
    ```
-   - API 默认端口：`8000`
-   - MySQL：`3306`
+   - API 默认端口：`9981`
+   - MySQL：`33066`
    - Qdrant：`6333`
 3. API 文档与界面入口：
-   - Swagger: http://localhost:8000/docs
-   - Web 登录: http://localhost:8000/ui/login
-   - 列表页: http://localhost:8000/ui/items
+   - Swagger: http://localhost:9981/docs
+   - Web 登录: http://localhost:9981/ui/login
+   - 列表页: http://localhost:9981/ui/items
 
-> 提示：API 容器启动时会自动执行 `alembic upgrade head` 迁移，挂载的 `/data/uploads` 用于保存上传文件与原始 HTML。
+> 提示：API 容器启动时会自动执行 `alembic upgrade head` 迁移，挂载的 `/data/uploads` 用于保存上传文件与原始 HTML。当前 docker-compose 将上传文件、MySQL 数据与 Qdrant 数据映射到项目下的 `volume/` 目录。
 
 ## 配置说明
 下表列出 `.env` 所有配置项及说明（示例值可参考 `.env.example`）：
 
 | 变量名 | 说明 | 示例/默认值 |
 | --- | --- | --- |
-| `DATABASE_URL` | MySQL 连接串，支持同步/异步驱动（用于 Alembic 与运行时）。 | `mysql+aiomysql://kb:kbpass@mysql:3306/kb` |
+| `DATABASE_URL` | MySQL 连接串，支持同步/异步驱动（用于 Alembic 与运行时）。 | `mysql+aiomysql://kb:kbpass@mysql:33066/kb` |
 | `QDRANT_URL` | Qdrant 服务地址。 | `http://qdrant:6333` |
 | `QDRANT_API_KEY` | Qdrant API 密钥（未启用鉴权可留空）。 | 空 | 
 | `EMBEDDING_DIM` | 向量维度，需与 Qdrant collection 配置一致。 | `1536` |
@@ -93,7 +93,16 @@ pytest
 
 ## 交互说明
 - REST API：以 `/api/v1` 为前缀；统一响应格式 `{ "success": true/false, ... }`。
-- Web UI：登录后可进行条目创建、编辑、删除与检索；匿名访问的开关由配置控制。
+- Web UI：登录后可进行条目创建、编辑、删除与查看；匿名访问的开关由配置控制。
+
+## 未来计划
+- 开放添加知识的 API：提供 API Key、限流/配额、审计与使用统计，面向第三方系统稳定接入。
+- 增加多种检索模式，包括关键字全文检索、向量检索、标签检索。
+- 批量入库与异步任务：支持大批量 URL/文件导入，提供进度与失败重试。
+- 内容分块与增量更新：长文档分块检索、增量更新与重建向量索引策略。
+- 更多数据源与格式：Markdown/HTML、图片 OCR、音频转写、浏览器插件采集等。
+- 团队与权限体系：空间/项目、多角色权限、共享与协作。
+- UI 完善：高级搜索/筛选、标签管理、数据导出与可视化面板。
 
 ## 常见问题
 - **没有 OpenAI Key 也能跑吗？** 可以，默认使用 MockProvider 生成摘要/关键词/标签与伪造向量。

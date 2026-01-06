@@ -1,15 +1,171 @@
 <!DOCTYPE html>
-<html>
-<head><title>Edit {{ item.title }}</title></head>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ t("edit_heading") }} {{ item.title }}</title>
+  <style>
+    :root {
+      --bg: #f7f3eb;
+      --bg-2: #f0f6f5;
+      --ink: #1f1a17;
+      --muted: #6c5f55;
+      --accent: #0f766e;
+      --accent-2: #f59e0b;
+      --card: #fffdf8;
+      --border: #e6ddd1;
+      --shadow: 0 16px 40px rgba(35, 24, 14, 0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1000px 500px at 15% -10%, #fff7e6 0%, transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, #e5f7f2 0%, transparent 55%),
+        linear-gradient(120deg, var(--bg), var(--bg-2));
+    }
+    header {
+      padding: 28px clamp(16px, 6vw, 56px) 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand::before {
+      content: "";
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 999px;
+    }
+    .wrap {
+      padding: 0 clamp(16px, 6vw, 56px) 48px;
+      display: grid;
+      gap: 18px;
+      animation: rise 0.6s ease both;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 3.6vw, 40px);
+      letter-spacing: -0.4px;
+    }
+    form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 14px;
+    }
+    label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+    input, textarea {
+      font-size: 15px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn {
+      cursor: pointer;
+      border: 0;
+      padding: 12px 18px;
+      font-size: 15px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(120deg, var(--accent), #1a9d8f);
+      box-shadow: 0 10px 20px rgba(15, 118, 110, 0.25);
+      transition: transform 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .link {
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .lang {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
 <body>
-<h1>Edit {{ item.title }}</h1>
-<form method="post" action="/api/v1/items/{{ item.id }}?_method=put">
-  <label>Title: <input name="title" value="{{ item.title }}" /></label><br>
-  <label>Summary: <textarea name="summary">{{ item.summary }}</textarea></label><br>
-  <label>Keywords: <input name="keywords" value=",".join(item.keywords or []) /></label><br>
-  <label>Tags: <input name="tags" value=",".join(item.tags or []) /></label><br>
-  <label>Content: <textarea name="content_text">{{ item.content_text }}</textarea></label><br>
-  <button type="submit">Save</button>
-</form>
+  <header>
+    <div class="brand">{{ t("brand_name") }}</div>
+    <div class="actions">
+      <a class="link" href="/ui/items/{{ item.id }}">{{ t("action_back_to_detail") }}</a>
+      <a class="lang" href="/ui/lang?lang={{ lang_switch_to }}&next={{ lang_next | urlencode }}">{{ lang_switch_label }}</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <h1>{{ t("edit_heading") }} {{ item.title }}</h1>
+    <form method="post" action="/api/v1/items/{{ item.id }}?_method=put">
+      <label>{{ t("label_title") }}
+        <input name="title" value="{{ item.title }}" />
+      </label>
+      <label>{{ t("label_summary") }}
+        <textarea name="summary">{{ item.summary }}</textarea>
+      </label>
+      <label>{{ t("label_keywords") }}
+        <input name="keywords" value=",".join(item.keywords or []) />
+      </label>
+      <label>{{ t("label_tags") }}
+        <input name="tags" value=",".join(item.tags or []) />
+      </label>
+      <label>{{ t("label_content") }}
+        <textarea name="content_text">{{ item.content_text }}</textarea>
+      </label>
+      <div class="actions">
+        <button class="btn" type="submit">{{ t("action_save") }}</button>
+        <a class="link" href="/ui/items/{{ item.id }}">{{ t("action_cancel") }}</a>
+      </div>
+      <div class="hint">{{ t("edit_tip") }}</div>
+    </form>
+  </main>
 </body>
 </html>

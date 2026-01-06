@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ t("ingest_title") }}</title>
+  <style>
+    :root {
+      --bg: #f7f3eb;
+      --bg-2: #f0f6f5;
+      --ink: #1f1a17;
+      --muted: #6c5f55;
+      --accent: #0f766e;
+      --accent-2: #f59e0b;
+      --card: #fffdf8;
+      --border: #e6ddd1;
+      --shadow: 0 16px 40px rgba(35, 24, 14, 0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1000px 500px at 15% -10%, #fff7e6 0%, transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, #e5f7f2 0%, transparent 55%),
+        linear-gradient(120deg, var(--bg), var(--bg-2));
+    }
+    header {
+      padding: 28px clamp(16px, 6vw, 56px) 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand::before {
+      content: "";
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 999px;
+    }
+    .wrap {
+      padding: 0 clamp(16px, 6vw, 56px) 48px;
+      display: grid;
+      gap: 18px;
+      animation: rise 0.6s ease both;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.4px;
+    }
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 12px;
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+    label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+    input, textarea {
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn {
+      cursor: pointer;
+      border: 0;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(120deg, var(--accent), #1a9d8f);
+      box-shadow: 0 10px 20px rgba(15, 118, 110, 0.2);
+      transition: transform 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .ghost {
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .lang {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .error {
+      background: #fff4f2;
+      border: 1px solid #f3c6c1;
+      color: #a6362d;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">{{ t("brand_name") }}</div>
+    <div class="nav">
+      <a class="ghost" href="/ui/items">{{ t("action_back_to_library") }}</a>
+      <a class="lang" href="/ui/lang?lang={{ lang_switch_to }}&next={{ lang_next | urlencode }}">{{ lang_switch_label }}</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <h1>{{ t("ingest_title") }}</h1>
+    <p class="sub">{{ t("ingest_subtitle") }}</p>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <section class="grid">
+      <form class="card" method="post" action="/ui/ingest/text">
+        <h2>{{ t("ingest_text_card_title") }}</h2>
+        <label>{{ t("ingest_text_title_label") }}
+          <input name="title" placeholder="{{ t('ingest_title_placeholder') }}" required />
+        </label>
+        <label>{{ t("ingest_text_content_label") }}
+          <textarea name="content_text" placeholder="{{ t('ingest_content_placeholder') }}" required></textarea>
+        </label>
+        <label>{{ t("ingest_text_tags_label") }}
+          <input name="tags" placeholder="{{ t('ingest_tags_placeholder') }}" />
+        </label>
+        <label class="check">
+          <input type="checkbox" name="force" value="true" />
+          {{ t("ingest_allow_duplicate") }}
+        </label>
+        <div class="row">
+          <span class="hint">{{ t("ingest_text_hint") }}</span>
+          <button class="btn" type="submit">{{ t("action_save_text") }}</button>
+        </div>
+      </form>
+
+      <form class="card" method="post" action="/ui/ingest/url">
+        <h2>{{ t("ingest_url_card_title") }}</h2>
+        <label>{{ t("ingest_url_label") }}
+          <input name="url" placeholder="{{ t('ingest_url_placeholder') }}" required />
+        </label>
+        <label>{{ t("ingest_url_title_label") }}
+          <input name="title" placeholder="{{ t('ingest_url_title_placeholder') }}" />
+        </label>
+        <label>{{ t("ingest_url_tags_label") }}
+          <input name="tags" placeholder="{{ t('ingest_url_tags_placeholder') }}" />
+        </label>
+        <label class="check">
+          <input type="checkbox" name="force" value="true" />
+          {{ t("ingest_allow_duplicate") }}
+        </label>
+        <div class="row">
+          <span class="hint">{{ t("ingest_url_hint") }}</span>
+          <button class="btn" type="submit">{{ t("action_fetch_link") }}</button>
+        </div>
+      </form>
+
+      <form class="card" method="post" action="/ui/ingest/file" enctype="multipart/form-data">
+        <h2>{{ t("ingest_file_card_title") }}</h2>
+        <label>{{ t("ingest_file_label") }}
+          <input type="file" name="file" accept=".pdf,.docx" required />
+        </label>
+        <label>{{ t("ingest_file_title_label") }}
+          <input name="title" placeholder="{{ t('ingest_file_title_placeholder') }}" />
+        </label>
+        <label>{{ t("ingest_file_tags_label") }}
+          <input name="tags" placeholder="{{ t('ingest_file_tags_placeholder') }}" />
+        </label>
+        <label class="check">
+          <input type="checkbox" name="force" value="true" />
+          {{ t("ingest_allow_duplicate") }}
+        </label>
+        <div class="row">
+          <span class="hint">{{ t("ingest_file_hint") }}</span>
+          <button class="btn" type="submit">{{ t("action_upload_file") }}</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

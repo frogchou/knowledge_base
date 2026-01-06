@@ -6,8 +6,10 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.ui.routes import ui_router
-from app.db.models import Base
-from app.db.session import engine
+from app.db.models import Base, User
+from app.db.session import engine, AsyncSessionLocal
+from app.core.security import get_password_hash
+from sqlalchemy import select
 import asyncio
 
 setup_logging()
@@ -27,6 +29,16 @@ app.add_middleware(
 async def on_startup() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    if settings.admin_username and settings.admin_password:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(User).where(User.username == settings.admin_username))
+            if not result.scalars().first():
+                user = User(
+                    username=settings.admin_username,
+                    password_hash=get_password_hash(settings.admin_password),
+                )
+                session.add(user)
+                await session.commit()
 
 
 @app.get("/health")

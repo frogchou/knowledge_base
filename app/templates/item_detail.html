@@ -1,14 +1,181 @@
 <!DOCTYPE html>
-<html>
-<head><title>{{ item.title }}</title></head>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ item.title }}</title>
+  <style>
+    :root {
+      --bg: #f7f3eb;
+      --bg-2: #f0f6f5;
+      --ink: #1f1a17;
+      --muted: #6c5f55;
+      --accent: #0f766e;
+      --accent-2: #f59e0b;
+      --card: #fffdf8;
+      --border: #e6ddd1;
+      --shadow: 0 16px 40px rgba(35, 24, 14, 0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1000px 500px at 15% -10%, #fff7e6 0%, transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, #e5f7f2 0%, transparent 55%),
+        linear-gradient(120deg, var(--bg), var(--bg-2));
+    }
+    header {
+      padding: 28px clamp(16px, 6vw, 56px) 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand::before {
+      content: "";
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 999px;
+    }
+    .wrap {
+      padding: 0 clamp(16px, 6vw, 56px) 48px;
+      display: grid;
+      gap: 18px;
+      animation: rise 0.6s ease both;
+    }
+    .title {
+      font-size: clamp(28px, 4vw, 44px);
+      margin: 0;
+      letter-spacing: -0.4px;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 12px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f1efe9;
+      border: 1px solid #e5dad0;
+      color: #4b3f36;
+    }
+    .label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    pre {
+      margin: 0;
+      background: #fcfaf5;
+      border: 1px solid #efe4d7;
+      padding: 14px;
+      border-radius: 12px;
+      max-height: 320px;
+      overflow: auto;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .link {
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .lang {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .btn-danger {
+      border: 1px solid #e6b8ae;
+      background: #fff2ef;
+      color: #a63e32;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
 <body>
-<h1>{{ item.title }}</h1>
-<p><strong>Summary:</strong> {{ item.summary }}</p>
-<p><strong>Keywords:</strong> {{ item.keywords }}</p>
-<p><strong>Tags:</strong> {{ item.tags }}</p>
-<pre>{{ item.content_text[:500] }}</pre>
-<form method="post" action="/ui/items/{{ item.id }}/delete">
-  <button type="submit">Delete</button>
-</form>
+  <header>
+    <div class="brand">{{ t("brand_name") }}</div>
+    <div class="actions">
+      <a class="link" href="/ui/items">{{ t("action_back_to_list") }}</a>
+      <a class="lang" href="/ui/lang?lang={{ lang_switch_to }}&next={{ lang_next | urlencode }}">{{ lang_switch_label }}</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <h1 class="title">{{ item.title }}</h1>
+    <section class="panel">
+      <div class="label">{{ t("detail_summary_label") }}</div>
+      <p style="margin: 0; color: var(--muted);">{{ item.summary or t("detail_no_summary") }}</p>
+    </section>
+    <section class="panel">
+      <div class="label">{{ t("detail_keywords_label") }}</div>
+      <div class="meta">
+        {% for keyword in item.keywords or [] %}
+        <span class="chip">{{ keyword }}</span>
+        {% endfor %}
+        {% if not item.keywords %}
+        <span class="chip">{{ t("detail_keyword_none") }}</span>
+        {% endif %}
+      </div>
+      <div class="label" style="margin-top: 10px;">{{ t("detail_tags_label") }}</div>
+      <div class="meta">
+        {% for tag in item.tags or [] %}
+        <span class="chip">{{ tag }}</span>
+        {% endfor %}
+        {% if not item.tags %}
+        <span class="chip">{{ t("tag_untagged") }}</span>
+        {% endif %}
+      </div>
+    </section>
+    <section class="panel">
+      <div class="label">{{ t("detail_content_label") }}</div>
+      <pre>{{ item.content_text[:1200] }}</pre>
+    </section>
+    <div class="actions">
+      <a class="link" href="/ui/items/{{ item.id }}/edit">{{ t("action_edit_item") }}</a>
+      <form method="post" action="/ui/items/{{ item.id }}/delete">
+        <button class="btn-danger" type="submit">{{ t("action_delete") }}</button>
+      </form>
+    </div>
+  </main>
 </body>
 </html>

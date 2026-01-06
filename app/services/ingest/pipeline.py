@@ -10,7 +10,7 @@ from app.services.extractors.url_extractor import extract_from_url
 from app.services.extractors.file_extractor import extract_from_file
 from app.services.indexing.qdrant_store import QdrantStore
 from app.llm.providers.base import get_provider
-from app.services.storage.file_store import save_upload
+from app.services.storage.file_store import save_upload, save_html
 
 
 def compute_hash(content: str) -> str:
@@ -62,13 +62,14 @@ async def ingest_text(db: AsyncSession, user: User, title: str, content_text: st
 async def ingest_url(db: AsyncSession, user: User, url: str, title: str | None, tags: List[str] | None = None, force: bool = False) -> KnowledgeItem:
     content_text, raw_html = extract_from_url(url)
     title = title or url
+    html_meta = save_html(raw_html)
     if not force:
         existing = await db.execute(
             select(KnowledgeItem).where(KnowledgeItem.owner_id == user.id, KnowledgeItem.content_hash == compute_hash(content_text))
         )
         if existing.scalars().first():
             raise HTTPException(status_code=400, detail="Duplicate content")
-    return await enrich_and_save(db, user, title, content_text, SourceType.url, tags=tags, source_url=url)
+    return await enrich_and_save(db, user, title, content_text, SourceType.url, tags=tags, source_url=url, file_meta=html_meta)
 
 
 async def ingest_file(db: AsyncSession, user: User, file: UploadFile, title: str | None, tags: List[str] | None = None, force: bool = False) -> KnowledgeItem:
