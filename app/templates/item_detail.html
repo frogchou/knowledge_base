@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ item.title }}</title></head>
+<body>
+<h1>{{ item.title }}</h1>
+<p><strong>Summary:</strong> {{ item.summary }}</p>
+<p><strong>Keywords:</strong> {{ item.keywords }}</p>
+<p><strong>Tags:</strong> {{ item.tags }}</p>
+<pre>{{ item.content_text[:500] }}</pre>
+<form method="post" action="/ui/items/{{ item.id }}/delete">
+  <button type="submit">Delete</button>
+</form>
+</body>
+</html>
