@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit {{ item.title }}</title></head>
+<body>
+<h1>Edit {{ item.title }}</h1>
+<form method="post" action="/api/v1/items/{{ item.id }}?_method=put">
+  <label>Title: <input name="title" value="{{ item.title }}" /></label><br>
+  <label>Summary: <textarea name="summary">{{ item.summary }}</textarea></label><br>
+  <label>Keywords: <input name="keywords" value=",".join(item.keywords or []) /></label><br>
+  <label>Tags: <input name="tags" value=",".join(item.tags or []) /></label><br>
+  <label>Content: <textarea name="content_text">{{ item.content_text }}</textarea></label><br>
+  <button type="submit">Save</button>
+</form>
+</body>
+</html>
